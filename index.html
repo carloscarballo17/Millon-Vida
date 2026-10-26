@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Millón Vida: simula tu estrategia</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#4b0c2c;--red:#ff0033;--green:#1f9d63;--orange:#c47f00;--bg:#fff;--card:#fff;--ink:#2b1220;--muted:#6b4a58;--line:#f3d3da;--pink:#fff0f3;--hero:#ff0033;--heroink:#fff;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Outfit,Arial,Helvetica,sans-serif;line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+header{background:var(--hero);color:var(--heroink);padding:34px 0 52px}
+header h1{font-size:clamp(26px,5vw,42px);font-weight:800;line-height:1.1;margin:0 0 10px;max-width:15em}
+header p{margin:0;max-width:38em;color:#ffe0e6;font-weight:500}
+.badge{display:inline-block;background:#ffdce3;color:#4b0c2c;font-weight:700;font-size:14px;padding:5px 12px;border-radius:20px;margin-bottom:14px}
+main{margin-top:-30px;padding-bottom:40px}
+.yrs{display:grid;gap:12px;grid-template-columns:1fr;margin-bottom:16px}
+@media(min-width:700px){.yrs{grid-template-columns:1fr 1fr}}
+.yr{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;gap:14px;align-items:center}
+.yr b{flex:none;background:var(--red);color:#fff;font-weight:800;border-radius:12px;padding:8px 14px;font-size:18px}
+.yr span{font-weight:600;color:var(--navy);font-size:16px;line-height:1.35}
+.grid{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:860px){.grid{grid-template-columns:340px 1fr;align-items:start}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.card h2{font-size:18px;font-weight:800;margin:0 0 14px;color:var(--navy)}
+label{display:block;font-weight:700;font-size:14px;margin:14px 0 6px}
+input[type=text],select,input[type=number]{width:100%;font:inherit;font-weight:600;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-offset:1px}
+input[type=range]{width:100%;accent-color:var(--red)}
+.row{display:flex;justify-content:space-between;align-items:baseline}
+.val{font-weight:800;color:var(--red)}
+.ben{display:grid;grid-template-columns:1fr 76px 34px;gap:8px;margin-bottom:8px;align-items:center}
+.rm{font:inherit;font-size:20px;line-height:1;border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:10px;height:42px;cursor:pointer}
+.add{font:inherit;font-weight:700;width:100%;padding:10px 12px;border:2px dashed var(--red);background:#fff;color:var(--red);border-radius:10px;cursor:pointer}
+.add:disabled{opacity:.45;cursor:default}
+.hint{font-size:13px;color:var(--muted);margin:8px 0 0}
+.warn{color:var(--red);font-weight:700}
+.kpis{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:620px){.kpis{grid-template-columns:1fr 1fr}}
+.kpi{border-radius:14px;padding:16px;border:1px solid var(--line);background:var(--card)}
+.kpi small{display:block;color:var(--muted);font-weight:600;font-size:13px}
+.kpi b{display:block;font-size:clamp(22px,4vw,30px);font-weight:800;margin-top:2px}
+.kpi.g{border-left:6px solid var(--green)}.kpi.g b{color:var(--green)}
+.kpi.o{border-left:6px solid var(--orange)}.kpi.o b{color:var(--orange)}
+.kpi.n{border-left:6px solid var(--navy)}.kpi.n b{color:var(--navy)}
+.kpi.r{border-left:6px solid var(--red)}.kpi.r b{color:var(--red)}
+.sav{margin-top:16px}
+.sr{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);font-weight:600}
+.sr span:last-child{font-weight:700;white-space:nowrap}
+.sr.t{border-bottom:0;background:var(--pink);border-radius:12px;padding:14px;margin-top:6px;font-size:18px}
+.sr.t span:last-child{font-weight:800;font-size:22px;color:var(--green)}
+.tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tabs button{font:inherit;font-weight:700;border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 16px;border-radius:22px;cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:480px}
+th,td{text-align:right;padding:10px 8px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-weight:700;font-size:13px}
+.up{color:var(--green);font-weight:800}
+.brk{margin:12px 0 0;padding:12px 14px;background:var(--pink);border-radius:12px;font-weight:600}.brk:empty{display:none}
+.sub{font-size:16px;font-weight:800;color:var(--navy);margin:22px 0 10px}
+.pdfbtn{display:block;width:100%;margin-top:16px;font:inherit;font-weight:800;font-size:17px;padding:15px;border:0;border-radius:14px;background:var(--red);color:#fff;cursor:pointer}
+@media print{.pdfbtn,.add,.rm,.tabs{display:none}header{padding-bottom:30px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<span class="badge">Millón Vida para empresas</span>
+<h1>Protege a tu empresa, tu patrimonio y tu legado</h1>
+<p>Una prima única que protege a una persona clave, genera rendimientos garantizados y puede reducir tu impuesto de renta. Simula tu caso en vivo.</p>
+</div></header>
+
+<main class="wrap">
+<div class="yrs">
+<div class="yr"><b>Año 1</b><span>La prima genera ahorro tributario</span></div>
+<div class="yr"><b>Año 2</b><span>Mapfre paga la indemnización y se distribuye entre los beneficiarios que designes</span></div>
+</div>
+
+<div class="grid">
+<section class="card" aria-label="Datos de la simulación">
+<h2>Tu simulación</h2>
+<label for="prima">Valor de la prima única (COP)</label>
+<input id="prima" type="text" inputmode="numeric" value="200.000.000" autocomplete="off">
+<div class="row"><label for="plazo" style="margin-bottom:0">Plazo del seguro</label><span class="val" id="plazoV">1 año</span></div>
+<input id="plazo" type="range" min="1" max="8" value="1">
+<label for="util">Utilidad de la empresa antes de impuestos (COP)</label>
+<input id="util" type="text" inputmode="numeric" value="1.000.000.000" autocomplete="off">
+<label for="reg">Régimen del tomador</label>
+<select id="reg"><option value="1">Régimen ordinario (tarifa 35%)</option></select>
+<h2 style="margin-top:22px">Beneficiarios</h2>
+<div id="bens"></div>
+<button type="button" class="add" id="add">+ Agregar beneficiario</button>
+<p class="hint" id="sumHint"></p>
+<p class="hint">El beneficiario no puede ser la empresa tomadora. Sí puede ser el propio asegurado, otra persona natural o una sociedad vinculada.</p>
+</section>
+
+<div>
+<section class="card" aria-label="Resultados">
+<h2>Lo que obtienes</h2>
+<div class="kpis">
+<div class="kpi r"><small>Ahorro estimado en impuesto de renta</small><b id="kAhorro">-</b></div>
+<div class="kpi g"><small>Capital que recibes al vencimiento</small><b id="kCapital">-</b></div>
+<div class="kpi o"><small>Rendimiento financiero ganado</small><b id="kRend">-</b></div>
+<div class="kpi n"><small>Prima que pagas hoy</small><b id="kPrima">-</b></div>
+</div>
+</section>
+
+<section class="card sav" aria-label="Ahorro tributario">
+<h2>Así se refleja el ahorro tributario</h2>
+<div class="sr"><span>Impuesto sin Millón Vida</span><span id="iSin">-</span></div>
+<div class="sr"><span>Impuesto con Millón Vida</span><span id="iCon">-</span></div>
+<div class="sr t"><span>Ahorro</span><span id="iAh">-</span></div>
+</section>
+
+<section class="card sav" aria-label="Reparto entre beneficiarios">
+<h2>Cuánto recibe cada beneficiario</h2>
+<div class="tabs" role="group" aria-label="Tipo de evento">
+<button type="button" id="tS" aria-pressed="true">Sobrevivencia al vencimiento</button>
+<button type="button" id="tF" aria-pressed="false">Fallecimiento</button>
+</div>
+<div id="yearBox" hidden>
+<label for="year">Año del plazo en que ocurre el fallecimiento</label>
+<select id="year"></select>
+</div>
+<p class="hint" id="totalTxt" style="margin-bottom:10px"></p>
+<div class="tw"><table>
+<thead><tr><th>Beneficiario</th><th>Sin Millón Vida</th><th>Con Millón Vida</th><th>Diferencia</th></tr></thead>
+<tbody id="tb"></tbody>
+</table></div>
+<p class="brk" id="brk"></p>
+<h3 class="sub">Cuánto recibe cada beneficiario en cada año</h3>
+<div class="tw"><table>
+<thead><tr><th>Beneficiario</th><th>Año 1 (dividendos)</th><th>Año 2 (póliza con rendimientos)</th><th>Total</th><th>Cuánto más recibe</th></tr></thead>
+<tbody id="tb2"></tbody>
+</table></div>
+<p class="hint">Sin Millón Vida: dividendos que reciben los beneficiarios después de pagar el 35% de impuesto sobre toda la utilidad. Con Millón Vida: dividendos de la utilidad que no se invierte en la póliza, también después del 35%, más lo que paga la póliza. La indemnización por seguro de vida es ganancia ocasional exenta hasta 3.250 UVT por beneficiario ($170.215.500 con UVT 2026).</p>
+</section>
+<button type="button" class="pdfbtn" id="pdf">Descargar reporte en PDF</button>
+</div>
+</div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+(function(){
+var TASA=0.35,R_SOBRE=0.07,R_FALL=0.10,MAXB=6;
+var $=function(i){return document.getElementById(i)};
+var fmt=function(n){return new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(Math.round(n))};
+var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')};
+var num=function(id){return parseInt(($(id).value||'').replace(/\D/g,''),10)||0};
+var mode='S',last=null;
+var bens=[{n:'Beneficiario 1',p:100}];
+function equalize(){var L=bens.length,b=Math.floor(100/L),r=100-b*L;bens.forEach(function(x,i){x.p=b+(i===0?r:0)})}
+function renderBens(){
+var h='';
+bens.forEach(function(b,i){
+h+='<div class="ben"><input type="text" data-k="n" data-i="'+i+'" aria-label="Nombre del beneficiario '+(i+1)+'" value="'+esc(b.n)+'"><input type="number" min="0" max="100" data-k="p" data-i="'+i+'" aria-label="Porcentaje del beneficiario '+(i+1)+'" value="'+b.p+'">'+(i?'<button type="button" class="rm" data-k="x" data-i="'+i+'" aria-label="Quitar beneficiario '+(i+1)+'">×</button>':'<span></span>')+'</div>';
+});
+$('bens').innerHTML=h;
+$('add').disabled=bens.length>=MAXB;
+}
+function setYears(){var n=+$('plazo').value,h='',cur=+$('year').value||n;for(var i=1;i<=n;i++)h+='<option value="'+i+'"'+(i===Math.min(cur,n)?' selected':'')+'>Año '+i+'</option>';$('year').innerHTML=h}
+function calc(){
+var P=num('prima'),U=num('util'),n=+$('plazo').value;
+$('plazoV').textContent=n+(n===1?' año':' años');
+var capital=P*Math.pow(1+R_SOBRE,n),rend=capital-P;
+var sin=U*TASA,con=Math.max(0,U-P)*TASA,ahorro=sin-con;
+$('kAhorro').textContent=fmt(ahorro);$('kCapital').textContent=fmt(capital);$('kRend').textContent=fmt(rend);$('kPrima').textContent=fmt(P);
+$('iSin').textContent=fmt(sin);$('iCon').textContent=fmt(con);$('iAh').textContent=fmt(ahorro);
+var total,txt;
+if(mode==='S'){total=capital;txt='Si el asegurado sobrevive al vencimiento, se paga un capital de '+fmt(total)+'.'}
+else{var y=+$('year').value||n;total=P*Math.pow(1+R_FALL,y);txt='Si el asegurado fallece en el año '+y+', se paga una indemnización de '+fmt(total)+'.'}
+$('totalTxt').textContent=txt;
+var divSin=U*(1-TASA),divCon=Math.max(0,U-P)*(1-TASA),sum=0,rows='',rows2='',data=[];
+bens.forEach(function(b){var p=Math.max(0,b.p||0);sum+=p;
+if(p>0){var c=(total+divCon)*p/100,s=divSin*p/100;
+rows+='<tr><td>'+esc(b.n)+' ('+p+'%)</td><td>'+fmt(s)+'</td><td>'+fmt(c)+'</td><td class="up">+'+fmt(c-s)+'</td></tr>';
+rows2+='<tr><td>'+esc(b.n)+' ('+p+'%)</td><td>'+fmt(divCon*p/100)+'</td><td>'+fmt(total*p/100)+'</td><td>'+fmt(c)+'</td><td class="up">+'+fmt(c-s)+'</td></tr>';data.push({n:b.n,p:p,s:s,d1:divCon*p/100,d2:total*p/100,c:c})}});
+$('tb').innerHTML=rows||'<tr><td colspan="4">Asigna un porcentaje a al menos un beneficiario.</td></tr>';
+$('tb2').innerHTML=rows2||'<tr><td colspan="5">Asigna un porcentaje a al menos un beneficiario.</td></tr>';
+last={P:P,U:U,n:n,capital:capital,rend:rend,sin:sin,con:con,ahorro:ahorro,total:total,txt:txt,data:data};
+var S=sum/100,mm=Math.min(P,U);$('brk').innerHTML=sum>0?'La diferencia total de <b>'+fmt((total+divCon-divSin)*S)+'</b> viene del ahorro tributario ('+fmt(ahorro*S)+') más los rendimientos ('+fmt((total-mm)*S)+').':'';var t=Math.round(sum*100)/100;
+$('sumHint').innerHTML=t===100?'Distribución completa: 100%.':'<span class="warn">Los porcentajes suman '+t+'%. Deben sumar 100%.</span>';
+}
+function mk(){$('tS').setAttribute('aria-pressed',mode==='S');$('tF').setAttribute('aria-pressed',mode==='F');$('yearBox').hidden=mode==='S';calc()}
+$('tS').onclick=function(){mode='S';mk()};
+$('tF').onclick=function(){mode='F';setYears();mk()};
+['prima','util'].forEach(function(id){$(id).addEventListener('input',function(e){var v=num(id);e.target.value=v?v.toLocaleString('es-CO'):'';calc()})});
+$('plazo').addEventListener('input',function(){setYears();calc()});
+$('year').addEventListener('change',calc);
+$('bens').addEventListener('input',function(e){var t=e.target,i=+t.dataset.i;if(t.dataset.k==='n')bens[i].n=t.value;else if(t.dataset.k==='p')bens[i].p=parseFloat(t.value)||0;calc()});
+$('bens').addEventListener('click',function(e){var t=e.target;if(t.dataset.k==='x'){bens.splice(+t.dataset.i,1);equalize();renderBens();calc()}});
+$('add').onclick=function(){if(bens.length<MAXB){bens.push({n:'Beneficiario '+(bens.length+1),p:0});equalize();renderBens();calc()}};
+function pdf(){
+if(!last)return;
+var J=window.jspdf;
+if(!J){window.print();return}
+var L=last,doc=new J.jsPDF({unit:'pt',format:'a4'}),W=doc.internal.pageSize.getWidth(),y=112;
+doc.setFillColor(255,0,51);doc.rect(0,0,W,84,'F');
+doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(22);doc.text('Millón Vida para empresas',40,40);
+doc.setFontSize(12);doc.setFont('helvetica','normal');doc.text('Resumen de tu simulación - '+new Date().toLocaleDateString('es-CO'),40,62);
+function h(t){if(y>720){doc.addPage();y=50}doc.setTextColor(75,12,44);doc.setFont('helvetica','bold');doc.setFontSize(14);doc.text(t,40,y);y+=10}
+function tbl(head,body,o){doc.autoTable(Object.assign({startY:y,head:[head],body:body,theme:'grid',styles:{font:'helvetica',fontSize:10,cellPadding:6,textColor:[43,18,32],lineColor:[243,211,218]},headStyles:{fillColor:[75,12,44],textColor:255},margin:{left:40,right:40}},o||{}));y=doc.lastAutoTable.finalY+24}
+h('Datos de la simulación');
+tbl(['Concepto','Valor'],[['Prima única',fmt(L.P)],['Plazo',L.n+(L.n===1?' año':' años')],['Utilidad antes de impuestos',fmt(L.U)],['Régimen','Ordinario (tarifa 35%)']]);
+h('Lo que obtienes');
+tbl(['Concepto','Valor'],[['Ahorro estimado en impuesto de renta',fmt(L.ahorro)],['Capital que recibes al vencimiento',fmt(L.capital)],['Rendimiento financiero ganado',fmt(L.rend)],['Prima que pagas hoy',fmt(L.P)]]);
+h('Así se refleja el ahorro tributario');
+tbl(['Concepto','Valor'],[['Impuesto sin Millón Vida',fmt(L.sin)],['Impuesto con Millón Vida',fmt(L.con)],['Ahorro',fmt(L.ahorro)]],{didParseCell:function(d){if(d.section==='body'&&d.row.index===2)d.cell.styles.fontStyle='bold'}});
+h('Cuánto recibe cada beneficiario');
+doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(107,74,88);
+var ln=doc.splitTextToSize(L.txt,W-80);doc.text(ln,40,y+8);y+=8+ln.length*13+8;
+tbl(['Beneficiario','Sin Millón Vida','Con Millón Vida','Diferencia'],L.data.map(function(r){return [r.n+' ('+r.p+'%)',fmt(r.s),fmt(r.c),'+'+fmt(r.c-r.s)]}));
+h('Cuánto recibe cada beneficiario en cada año');
+tbl(['Beneficiario','Año 1 (dividendos)','Año 2 (póliza con rendimientos)','Total','Cuánto más recibe'],L.data.map(function(r){return [r.n+' ('+r.p+'%)',fmt(r.d1),fmt(r.d2),fmt(r.c),'+'+fmt(r.c-r.s)]}));
+doc.save('reporte-millon-vida.pdf');
+}
+$('pdf').onclick=function(){try{pdf()}catch(e){window.print()}};
+renderBens();setYears();calc();
+})();
+</script>
+</body>
+</html>
