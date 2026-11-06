@@ -89,6 +89,8 @@ th{color:var(--muted);font-weight:700;font-size:13px}
 <input id="prima" type="text" inputmode="numeric" value="200.000.000" autocomplete="off">
 <div class="row"><label for="plazo" style="margin-bottom:0">Plazo del seguro</label><span class="val" id="plazoV">1 año</span></div>
 <input id="plazo" type="range" min="1" max="8" value="1">
+<label for="tasa">Tasa de rendimiento de la cobertura de sobrevivencia (% E.A.)</label>
+<input id="tasa" type="number" inputmode="decimal" min="0" max="30" step="0.1" value="6">
 <label for="util">Utilidad de la empresa antes de impuestos (COP)</label>
 <input id="util" type="text" inputmode="numeric" value="1.000.000.000" autocomplete="off">
 <label for="reg">Régimen del tomador</label>
@@ -150,7 +152,7 @@ th{color:var(--muted);font-weight:700;font-size:13px}
 
 <script>
 (function(){
-var TASA=0.35,R_SOBRE=0.07,R_FALL=0.10,MAXB=6;
+var TASA=0.35,R_FALL=0.10,MAXB=6;
 var $=function(i){return document.getElementById(i)};
 var fmt=function(n){return new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(Math.round(n))};
 var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')};
@@ -169,6 +171,8 @@ $('add').disabled=bens.length>=MAXB;
 function setYears(){var n=+$('plazo').value,h='',cur=+$('year').value||n;for(var i=1;i<=n;i++)h+='<option value="'+i+'"'+(i===Math.min(cur,n)?' selected':'')+'>Año '+i+'</option>';$('year').innerHTML=h}
 function calc(){
 var P=num('prima'),U=num('util'),n=+$('plazo').value;
+var rate=parseFloat($('tasa').value);if(!isFinite(rate)||rate<0)rate=0;if(rate>30)rate=30;
+var R_SOBRE=rate/100;
 $('plazoV').textContent=n+(n===1?' año':' años');
 var capital=P*Math.pow(1+R_SOBRE,n),rend=capital-P;
 var sin=U*TASA,con=Math.max(0,U-P)*TASA,ahorro=sin-con;
@@ -185,7 +189,7 @@ rows+='<tr><td>'+esc(b.n)+' ('+p+'%)</td><td>'+fmt(s)+'</td><td>'+fmt(c)+'</td><
 rows2+='<tr><td>'+esc(b.n)+' ('+p+'%)</td><td>'+fmt(divCon*p/100)+'</td><td>'+fmt(total*p/100)+'</td><td>'+fmt(c)+'</td><td class="up">+'+fmt(c-s)+'</td></tr>';data.push({n:b.n,p:p,s:s,d1:divCon*p/100,d2:total*p/100,c:c})}});
 $('tb').innerHTML=rows||'<tr><td colspan="4">Asigna un porcentaje a al menos un beneficiario.</td></tr>';
 $('tb2').innerHTML=rows2||'<tr><td colspan="5">Asigna un porcentaje a al menos un beneficiario.</td></tr>';
-last={E:($('emp').value||'').trim(),P:P,U:U,n:n,capital:capital,rend:rend,sin:sin,con:con,ahorro:ahorro,total:total,txt:txt,data:data};
+last={E:($('emp').value||'').trim(),R:rate,P:P,U:U,n:n,capital:capital,rend:rend,sin:sin,con:con,ahorro:ahorro,total:total,txt:txt,data:data};
 var S=sum/100,mm=Math.min(P,U);$('brk').innerHTML=sum>0?'La diferencia total de <b>'+fmt((total+divCon-divSin)*S)+'</b> viene del ahorro tributario ('+fmt(ahorro*S)+') más los rendimientos ('+fmt((total-mm)*S)+').':'';var t=Math.round(sum*100)/100;
 $('sumHint').innerHTML=t===100?'Distribución completa: 100%.':'<span class="warn">Los porcentajes suman '+t+'%. Deben sumar 100%.</span>';
 }
@@ -194,6 +198,7 @@ $('tS').onclick=function(){mode='S';mk()};
 $('tF').onclick=function(){mode='F';setYears();mk()};
 ['prima','util'].forEach(function(id){$(id).addEventListener('input',function(e){var v=num(id);e.target.value=v?v.toLocaleString('es-CO'):'';calc()})});
 $('emp').addEventListener('input',calc);
+$('tasa').addEventListener('input',calc);
 $('plazo').addEventListener('input',function(){setYears();calc()});
 $('year').addEventListener('change',calc);
 $('bens').addEventListener('input',function(e){var t=e.target,i=+t.dataset.i;if(t.dataset.k==='n')bens[i].n=t.value;else if(t.dataset.k==='p')bens[i].p=parseFloat(t.value)||0;calc()});
@@ -210,7 +215,7 @@ doc.setFontSize(12);doc.setFont('helvetica','normal');doc.text((L.E?L.E+' - ':''
 function h(t){if(y>720){doc.addPage();y=50}doc.setTextColor(75,12,44);doc.setFont('helvetica','bold');doc.setFontSize(14);doc.text(t,40,y);y+=10}
 function tbl(head,body,o){doc.autoTable(Object.assign({startY:y,head:[head],body:body,theme:'grid',styles:{font:'helvetica',fontSize:10,cellPadding:6,textColor:[43,18,32],lineColor:[243,211,218]},headStyles:{fillColor:[75,12,44],textColor:255},margin:{left:40,right:40}},o||{}));y=doc.lastAutoTable.finalY+24}
 h('Datos de la simulación');
-tbl(['Concepto','Valor'],[['Empresa',L.E||'-'],['Prima única',fmt(L.P)],['Plazo',L.n+(L.n===1?' año':' años')],['Utilidad antes de impuestos',fmt(L.U)],['Régimen','Ordinario (tarifa 35%)']]);
+tbl(['Concepto','Valor'],[['Empresa',L.E||'-'],['Prima única',fmt(L.P)],['Plazo',L.n+(L.n===1?' año':' años')],['Utilidad antes de impuestos',fmt(L.U)],['Tasa de rendimiento (sobrevivencia)',String(L.R).replace('.',',')+' % E.A.'],['Régimen','Ordinario (tarifa 35%)']]);
 h('Lo que obtienes');
 tbl(['Concepto','Valor'],[['Ahorro estimado en impuesto de renta',fmt(L.ahorro)],['Capital que recibes al vencimiento',fmt(L.capital)],['Rendimiento financiero ganado',fmt(L.rend)],['Prima que pagas hoy',fmt(L.P)]]);
 h('Así se refleja el ahorro tributario');
